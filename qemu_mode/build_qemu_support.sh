@@ -75,7 +75,7 @@ for i in libtool wget python automake autoconf sha384sum bison iconv; do
 
 done
 
-if [ ! -d "/usr/include/glib-2.0/" -a ! -d "/usr/local/include/glib-2.0/" ]; then
+if ! pkg-config --exists glib-2.0; then
 
   echo "[-] Error: devel version of 'glib2' not found, please install first."
   exit 1
@@ -88,6 +88,20 @@ if echo "$CC" | grep -qF /afl-; then
   exit 1
 
 fi
+
+PYTHON_PATH=$(which python2 2>/dev/null || which python 2>/dev/null)
+if [ -n "$PYTHON_PATH" ]; then
+  PYTHON_VERSION=$($PYTHON_PATH -c 'import sys; print(sys.version_info[0])' 2>/dev/null)
+  if [ "$PYTHON_VERSION" != "2" ]; then
+    echo "[-] Error: Python 2 not found, but Python $PYTHON_VERSION was found at $PYTHON_PATH"
+    PYTHON_PATH=""
+  fi
+fi
+if [ -z "$PYTHON_PATH" ]; then
+  echo "[-] Error: Python 2 not found in PATH. Please install Python 2 first."
+  exit 1
+fi
+echo "[+] Using Python 2 at: $PYTHON_PATH"
 
 echo "[+] All checks passed!"
 
@@ -147,7 +161,7 @@ echo "[+] Patching done."
 
 CFLAGS="-O3 -ggdb" ./configure --disable-system \
   --enable-linux-user --disable-gtk --disable-sdl --disable-vnc \
-  --target-list="${CPU_TARGET}-linux-user" --enable-pie --enable-kvm --python=/usr/bin/python || exit 1
+  --target-list="${CPU_TARGET}-linux-user" --enable-pie --enable-kvm --python=${PYTHON_PATH} || exit 1
 
 echo "[+] Configuration complete."
 

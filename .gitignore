@@ -18,3 +18,14 @@ afl-llvm-pass.so
 afl-llvm-rt-32.o
 afl-llvm-rt-64.o
 afl-llvm-rt.o
+
+# Ignore QEMU Mode
+qemu_mode/qemu-2.10.0/
+qemu_mode/qemu-2.10.0.tar.xz
+afl-qemu-trace
+
+# Ignore Nix related
+/result
+/result-*
+/.direnv
+.envrc
